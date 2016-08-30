@@ -1,6 +1,6 @@
 # Yoda-Search
 ## About
-For detailed coverage, please visit: <Insert blog link>
+For detailed coverage, please visit [our blog] (https://medium.com/ofbusiness-tech/yoda-search-a-slackbot-for-search-a1c459576e3e#.nap4gwogy)
 
 Yoda is a slack bot that indexes your messages in Elasticsearch so that you can search your messages past the 10,000 messages limit imposed Slack’s free tier.
 
