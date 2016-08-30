@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+*/.DS_Store
+.env
+.idea/
+*.ipr
+*.iws
+*.ips
+.project
+.vscode/
+*.log

@@ -1,0 +1,16 @@
+{
+    "es": {
+        "host": "elasticsearch_host_url", //generally, 127.0.0.1 in dev environment
+        "port": "elasticsearch_port", //generally, 9200
+        "index": "your_index",
+        "type": "your_type"
+    },
+    "slack": {
+        "token": "your_bot_token",
+        "botUserName": "your_bot_user_name"
+    },
+    "slashCommand": {
+        "token": "your_slash_command_token",
+        "port": "web_server_port"
+    }
+}
