@@ -17,7 +17,7 @@
 var SlackService = require('./service/slack-service.js');
 var server = require('./server.js')
 var slack = SlackService.slackInstance;
-SlackService.setUpOnOpenListener(SlackService.onOpen(slack));
+SlackService.setUpOnOpenListener(SlackService.onOpen(slack.dataStore));
 SlackService.setUpOnMessageListener(SlackService.onMessageReceived(slack));
 SlackService.setUpOnErrorListener(SlackService.onError);
 SlackService.start();

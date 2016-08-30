@@ -14,7 +14,12 @@
    limitations under the License.
 */
 
-var SlackClient = require('slack-client');
+var SlackClient = require('@slack/client');
+var RtmClient = SlackClient.RtmClient;
+var CLIENT_EVENTS = SlackClient.CLIENT_EVENTS;
+var RTM_EVENTS = SlackClient.RTM_EVENTS;
+var MemoryDataStore = SlackClient.MemoryDataStore;
+
 var config = require('config');
 var Util = require('../util/util.js');
 var MessageConverter = require('../service/message-converter.js');
@@ -24,7 +29,12 @@ var token = config.get('slack.token');
 var botUserName = config.get('slack.botUserName')
 var autoReconnect = true;
 var autoMark = true;
-var slack = new SlackClient(token, autoReconnect, autoMark);
+var slack = new RtmClient(token, {// Sets the level of logging we require
+    // Sets the level of logging we require
+    logLevel: 'error',
+    // Initialise a data store for our client, this will load additional helper functions for the storing and retrieval of data
+    dataStore: new MemoryDataStore()
+});
 
 module.exports = function () {
     return {
@@ -38,27 +48,27 @@ module.exports = function () {
         onError: onError
     };
     function start() {
-        slack.login();
+        slack.start();
     }
 
     function setUpOnMessageListener(listener) {
-        slack.on('message', listener);
+        slack.on(RTM_EVENTS.MESSAGE, listener);
     }
 
     function setUpOnErrorListener(listener) {
-        slack.on('error', listener);
+        slack.on(CLIENT_EVENTS.RTM.WS_ERROR, listener);
     }
 
     function setUpOnOpenListener(listener) {
-        slack.on('open', listener);
+        slack.on(CLIENT_EVENTS.RTM.AUTHENTICATED, listener);
     }
 
-    function onOpen(slack) {
-        return function () {
-            var unreads = slack.getUnreadCount();
+    function onOpen(dataStore) {
+        return function (rtmStartData) {
+            dataStore.cacheRtmStart(rtmStartData);
             var channels = (function () {
                 var ref, results;
-                ref = slack.channels;
+                ref = rtmStartData.channels;
                 results = [];
                 for (var id in ref) {
                     var channel = ref[id];
@@ -70,7 +80,7 @@ module.exports = function () {
             })();
             var groups = (function () {
                 var ref, results;
-                ref = slack.groups;
+                ref = rtmStartData.groups;
                 results = [];
                 for (var id in ref) {
                     var group = ref[id];
@@ -80,27 +90,26 @@ module.exports = function () {
                 }
                 return results;
             })();
-            console.log("Welcome to Slack. You are @" + slack.self.name + " of " + slack.team.name);
+            console.log("Welcome to Slack. You are @" + rtmStartData.self.name + " of " + rtmStartData.team.name);
             console.log('You are in: ' + channels.join(', '));
             console.log('As well as: ' + groups.join(', '));
-            var messages = unreads === 1 ? 'message' : 'messages';
-            return console.log("You have " + unreads + " unread " + messages);
         };
     }
 
-    function onMessageReceived(slack) {
+    function onMessageReceived(rtmClient) {
+        var dataStore = rtmClient.dataStore;
         return function (message) {
-            var channel = slack.getChannelGroupOrDMByID(message.channel);
-            var convertedMessage = MessageConverter.convertMessage(slack, message);
+            var channel = dataStore.getChannelGroupOrDMById(message.channel);
+            var convertedMessage = MessageConverter.convertMessage(dataStore, message);
             if (convertedMessage.userName === botUserName) {
                 return;
             }
             var searchPrefix = Util.stringStartsWithOneOf(convertedMessage.text, searchPrefixes);
             if (searchPrefix) {
-                var query = convertedMessage.text.replace(searchPrefix, '');
+                var query = convertedMessage.text.replace(searchPrefix, '').trim();
                 console.log('Its a query : ', query);
                 SearchService.search(query, convertedMessage.channel, function (response) {
-                    return channel.send(response.substr(0, 4000));
+                    return rtmClient.sendMessage(response.substr(0, 4000), convertedMessage.channel);
                 });
             } else {
                 SearchService.index(convertedMessage);
