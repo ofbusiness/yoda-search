@@ -10,6 +10,7 @@
         "url": "git@github.com:ofbusiness/yoda-search.git"
     },
     "dependencies": {
+        "@slack/client": "^3.5.4",
         "config": "^1.19.0",
         "dateformat": "^1.0.12",
         "elasticsearch": "^10.1.3",
