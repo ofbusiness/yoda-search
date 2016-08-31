@@ -20,7 +20,19 @@ This will do the same thing, but the query and response will be visible to every
 NOTE: For private queries, the slash command invocation(/yoda) is dependent upon your configuration. You could configure it to respond to /blahblah if you wish to.
 ## Setup instructions
 
- - Setup [Elasticsearch](https://www.elastic.co/products/elasticsearch) on your machine
+ - Setup [Elasticsearch](https://www.elastic.co/products/elasticsearch) on your machine. While creating your index, use the following API call:-
+
+    `curl -X PUT -d '{
+        "{your_mapping_name}" : {
+            "messages" : {
+                "properties" : {
+                     "channel" : { "type" : "string", "index" : "not_analyzed" }
+                }
+            }
+        }
+    }' "http://localhost:9200/{your_index_name}"`
+
+    This makes the field 'channel' not analyzed in Elasticsearch, which is a requirement for the bot's usage.
  - Configure a [Slack Bot User](https://api.slack.com/bot-users). This will be used for RTM messaging
  - Also configure a [Slash Command](https://api.slack.com/custom-integrations)
  - Put these configuration settings in the config file for your environment(development.json or production.json)
