@@ -36,7 +36,7 @@ Code away!
 ## Credits
 Thanks to the following projects:-
  - [Elasticsearch](https://github.com/elastic/elasticsearch)
- - [Slack Client](https://www.npmjs.com/package/slack-client) (Deprecated)
+ - [Slack Client for NodeJS](https://github.com/slackhq/node-slack-sdk)
  - [Config](https://github.com/lorenwest/node-config)
  - [querystring](https://github.com/Gozala/querystring)
  

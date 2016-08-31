@@ -18,20 +18,19 @@ module.exports = function () {
     return {
         convertMessage: convertMessage
     };
-    function convertMessage(slack, message) {
+    function convertMessage(dataStore, message) {
         var convertedMessage = {};
-        var channel = slack.getChannelGroupOrDMByID(message.channel);
-        var user = slack.getUserByID(message.user);
+        var channel = dataStore.getChannelGroupOrDMById(message.channel);
+        var user = dataStore.getUserById(message.user);
         var channelName = channel ? channel.name : 'UNKNOWN_CHANNEL';
         var userName = (user != null ? user.name : void 0) != null ? "@" + user.name : "UNKNOWN_USER";
-
         convertedMessage.user = message.user;
         convertedMessage.userName = userName;
         convertedMessage.channel = message.channel;
         convertedMessage.channelName = channelName;
         convertedMessage.ts = message.ts;
-        convertedMessage.team = message._client.team.id;
-        convertedMessage.teamName = message._client.team.name;
+        convertedMessage.team = message.team;
+        convertedMessage.teamName = dataStore.getTeamById(convertedMessage.team).name;
         convertedMessage.type = message.type;
         convertedMessage.date = new Date().getTime();
         if (message.type === 'message') {
